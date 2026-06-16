@@ -5,41 +5,170 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>KINOFLIX - Onlayn Çat</title>
   <style>
-    body { margin: 0; font-family: 'Poppins', sans-serif; background: linear-gradient(135deg, #141414, #E50914); color: white; min-height: 100vh; display: flex; flex-direction: column; }
+    body { 
+      margin: 0; 
+      font-family: 'Poppins', sans-serif; 
+      background: linear-gradient(135deg, #141414, #222222); 
+      color: white; 
+      min-height: 100vh; 
+      display: flex; 
+      flex-direction: column; 
+    }
     
     /* Ekran idarəetməsi */
     .chat-screen { display: none !important; flex-direction: column; height: 100%; }
     .chat-screen.active { display: flex !important; }
 
-    .social-chat-section { width: 100%; max-width: 800px; height: 600px; background: #efeae2; margin: 30px auto; border-radius: 15px; overflow: hidden; color: #333; display: flex; flex-direction: column; position: relative; box-shadow: 0 8px 24px rgba(0,0,0,0.5); }
+    .social-chat-section { 
+      width: 100%; 
+      max-width: 800px; 
+      height: 600px; 
+      background: #111111; 
+      margin: 30px auto; 
+      border-radius: 15px; 
+      overflow: hidden; 
+      color: #333; 
+      display: flex; 
+      flex-direction: column; 
+      position: relative; 
+      box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+      border: 1px solid #292929;
+    }
     
-    #loginScreen { background: linear-gradient(135deg, #141414, #222222); color: white; justify-content: center; align-items: center; padding: 20px; text-align: center; }
-    #loginScreen h2 { color: #E50914; margin-bottom: 20px; font-size: 28px; letter-spacing: 1px; }
-    .nick-input { width: 280px; padding: 12px; border-radius: 25px; border: 1px solid #444; margin-bottom: 12px; text-align: center; background: #333; color: white; outline: none; }
-    .nick-input:focus { border-color: #E50914; }
-    .login-btn { background: #E50914; color: white; border: none; padding: 12px 40px; border-radius: 25px; cursor: pointer; font-weight: bold; font-size: 16px; transition: 0.3s; }
-    .login-btn:hover { background: #b80710; }
-    .login-btn:disabled { background: #555; cursor: not-allowed; }
+    #loginScreen { 
+      background: linear-gradient(135deg, #141414, #1c1c1c); 
+      color: white; 
+      justify-content: center; 
+      align-items: center; 
+      padding: 20px; 
+      text-align: center; 
+    }
+    #loginScreen h2 {
+      color: #E50914;
+      margin-bottom: 20px;
+      font-size: 32px;
+      letter-spacing: 1px;
+      font-weight: bold;
+    }
+    .nick-input { 
+      width: 280px; 
+      padding: 12px; 
+      border-radius: 25px; 
+      border: 1px solid #444; 
+      margin-bottom: 12px; 
+      text-align: center; 
+      background: #262626;
+      color: white;
+      outline: none;
+      font-size: 16px;
+    }
+    .nick-input:focus {
+      border-color: #E50914;
+    }
+    .login-btn { 
+      background: #E50914; 
+      color: white; 
+      border: none; 
+      padding: 12px 50px; 
+      border-radius: 25px; 
+      cursor: pointer; 
+      font-weight: bold;
+      font-size: 16px;
+      transition: background 0.3s;
+    }
+    .login-btn:hover {
+      background: #b80710;
+    }
+    .login-btn:disabled {
+      background: #555;
+      cursor: not-allowed;
+    }
     
-    .whatsapp-header { background: #181818; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #E50914; }
-    .chat-messages-area { flex: 1; padding: 20px; overflow-y: auto; background: #111111; display: flex; flex-direction: column; gap: 10px; }
+    .whatsapp-header { 
+      background: #181818; 
+      color: white; 
+      padding: 15px; 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      border-bottom: 2px solid #E50914;
+    }
+    .chat-messages-area { 
+      flex: 1; 
+      padding: 20px; 
+      overflow-y: auto; 
+      background: #141414; 
+      display: flex; 
+      flex-direction: column; 
+      gap: 10px; 
+    }
+    .message-bubble { 
+      max-width: 70%; 
+      padding: 10px 14px; 
+      border-radius: 12px; 
+      font-size: 15px; 
+      word-wrap: break-word;
+      color: white;
+      line-height: 1.4;
+    }
+    .me { 
+      background: #E50914; 
+      align-self: flex-end; 
+      border-bottom-right-radius: 2px;
+    }
+    .other { 
+      background: #262626; 
+      align-self: flex-start; 
+      border-bottom-left-radius: 2px;
+    }
     
-    .message-bubble { max-width: 70%; padding: 10px 14px; border-radius: 10px; font-size: 14px; word-wrap: break-word; color: white; }
-    .me { background: #E50914; align-self: flex-end; border-bottom-right-radius: 2px; }
-    .other { background: #262626; align-self: flex-start; border-bottom-left-radius: 2px; }
-    
-    .chat-input-bar { background: #181818; padding: 12px; display: flex; gap: 10px; align-items: center; border-top: 1px solid #222; }
-    .chat-input-bar input { flex: 1; padding: 12px; background: #262626; border: 1px solid #444; border-radius: 20px; color: white; outline: none; padding-left: 20px; }
-    .chat-input-bar input:focus { border-color: #E50914; }
-    .send-btn { padding: 10px 24px; background: #E50914; color: white; border: none; border-radius: 20px; cursor: pointer; font-weight: bold; }
-    .send-btn:hover { background: #b80710; }
-    .error-text { color: #ff3333; font-size: 14px; margin-top: 10px; display: none; }
+    .chat-input-bar { 
+      background: #181818; 
+      padding: 12px; 
+      display: flex; 
+      gap: 10px; 
+      align-items: center; 
+      border-top: 1px solid #222;
+    }
+    .chat-input-bar input {
+      flex: 1;
+      padding: 12px 20px;
+      background: #262626;
+      border: 1px solid #444;
+      border-radius: 25px;
+      color: white;
+      outline: none;
+      font-size: 15px;
+    }
+    .chat-input-bar input:focus {
+      border-color: #E50914;
+    }
+    .send-btn {
+      padding: 11px 24px;
+      background: #E50914;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.3s;
+    }
+    .send-btn:hover {
+      background: #b80710;
+    }
+    .error-text {
+      color: #ff3333;
+      font-size: 14px;
+      margin-top: 10px;
+      display: none;
+    }
   </style>
 </head>
 
 <body>
   <main>
     <div class="social-chat-section">
+      
       <div class="chat-screen active" id="loginScreen">
         <h2>KINOFLIX ÇAT</h2>
         <input type="text" id="nicknameInput" class="nick-input" placeholder="Ləqəbiniz">
@@ -50,8 +179,8 @@
 
       <div class="chat-screen" id="mainChatScreen">
         <div class="whatsapp-header">
-          <div id="myDisplayNick" style="font-weight: bold; color: #E50914;">İstifadəçi</div>
-          <button onclick="location.reload()" style="background:#d32f2f; color:white; border:none; border-radius:5px; padding:6px 12px; cursor:pointer; font-weight:bold;">Çıxış</button>
+          <div id="myDisplayNick" style="font-weight: bold; letter-spacing: 0.5px;">İstifadəçi</div>
+          <button onclick="logoutForChat()" style="background:#d32f2f; color:white; border:none; border-radius:20px; padding:6px 16px; cursor:pointer; font-weight:bold; transition: 0.3s;">Çıxış</button>
         </div>
         <div class="chat-messages-area" id="chatMessagesArea"></div>
         <div class="chat-input-bar">
@@ -59,6 +188,7 @@
           <button class="send-btn" onclick="triggerMessageSend()">Göndər</button>
         </div>
       </div>
+
     </div>
   </main>
 
@@ -74,7 +204,7 @@
       const errorText = document.getElementById('errorText');
 
       if(!nick || !pass) {
-        alert("Boşluq saxlamayın!");
+        alert("Lütfən bütün xanaları doldurun!");
         return;
       }
 
@@ -82,12 +212,12 @@
       loginBtn.innerText = "Yoxlanılır...";
       errorText.style.display = "none";
 
-      // Render mühiti üçün socket-i düzgün başladırıq
+      // Render WebSocket dəstəyi ilə socket bağlantısını qururuq
       socket = io({
         transports: ['websocket', 'polling']
       });
 
-      // Server yuxudadırsa timeout sığortası
+      // Server yuxudadırsa timeout sığortası (8 saniyə)
       const timeout = setTimeout(() => {
         errorText.innerText = "Server gec cavab verir. Yenidən cəhd edin.";
         errorText.style.display = "block";
@@ -99,7 +229,7 @@
       socket.on('connect', () => {
         clearTimeout(timeout);
 
-        // Server.js-dəki mərkəzi login hadisəsinə müraciət
+        // Serverə login sorğusu göndərilir
         socket.emit('login', { nick, pass }, (response) => {
           if (response.success) {
             window.currentUserNick = nick;
@@ -121,13 +251,15 @@
     };
 
     function setupChatListeners() {
-      // Köhnə mesajları bazadan çəkib ekrana doldurmaq
+      // Serverdən gələn bütün köhnə mesajları bir dəfəyə qəbul edib ekrana basırıq
       socket.on('loadAllMessages', (messages) => {
-        document.getElementById('chatMessagesArea').innerHTML = ''; 
+        const area = document.getElementById('chatMessagesArea');
+        area.innerHTML = ''; 
         messages.forEach(msg => appendMessage(msg));
+        area.scrollTop = area.scrollHeight;
       });
 
-      // Canlı gələn mesajları tutmaq
+      // Hər yeni canlı mesaj gəldikdə
       socket.on('receiveMessage', (msg) => {
         appendMessage(msg);
       });
@@ -137,22 +269,30 @@
       const input = document.getElementById('messageInputField');
       if(!input.value.trim() || !socket) return;
       
-      // SERVER.JS-Ə TAM UYĞUN OBYEKT QURULUŞU (nick və message)
+      // Server.js-in gözlədiyi dəqiq format (nick və message)
       socket.emit('sendMessage', { nick: window.currentUserNick, message: input.value.trim() });
       input.value = "";
     };
 
-    // Enter klaviaturası dəstəyi
+    // Enter düyməsi ilə mesaj göndərmə dəstəyi
     document.getElementById('messageInputField').addEventListener('keypress', (e) => {
       if (e.key === 'Enter') triggerMessageSend();
     });
 
+    // ÇIXIŞ FUNKSİYASI (LOGOUT)
+    window.logoutForChat = function() {
+      if(socket) {
+        socket.disconnect();
+      }
+      location.reload(); // Səhifəni sıfırlayaraq təhlükəsiz çıxış edir
+    };
+
     function appendMessage(msg) {
-      // Köhnə və yeni verilənlər bazası formatlarını eyni anda dəstəkləmək üçün sığorta:
+      // HƏM KÖHNƏ VERİLƏNLƏR BAZASI FORMATINI (sender/text), HƏM DƏ YENİ FORMATI (nick/message) DƏSTƏKLƏYƏN SIĞORTA
       const sender = msg.nick || msg.sender || "Anonim";
       const text = msg.message || msg.text || "";
 
-      if (!text) return; // Boş mesajları render etmə
+      if (!text.trim()) return; 
 
       const div = document.createElement('div');
       div.className = 'message-bubble ' + (sender === window.currentUserNick ? 'me' : 'other');
@@ -160,9 +300,10 @@
       
       const area = document.getElementById('chatMessagesArea');
       area.appendChild(div);
-      area.scrollTop = area.scrollHeight; 
+      area.scrollTop = area.scrollHeight; // Avtomatik ən aşağı sürüşdür
     }
 
+    // XSS Təhlükəsizlik filteri
     function escapeHTML(str) {
       return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
     }
