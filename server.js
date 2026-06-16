@@ -8,28 +8,29 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-// Render avtomatik olaraq PORT təyin edir, yoxdursa 3000 istifadə olunur
 const PORT = process.env.PORT || 3000;
 
-// İçi HTML ilə dolu olan "public" qovluğunu istifadəçiyə təqdim edirik
 app.use(express.static('public'));
 
-// Bütün Firebase konfiqurasiyaları Render Env vasitəsilə alınır
+// Firebase konfiqurasiyası
 const firebaseConfig = {
   apiKey: process.env.FIREBASE_API_KEY,
   authDomain: process.env.FIREBASE_AUTH_DOMAIN,
   projectId: process.env.FIREBASE_PROJECT_ID,
-  databaseURL: process.env.FIREBASE_DATABASE_URL,
+  databaseURL: process.env.FIREBASE_DATABASE_URL, // <--- Bura Render Environment-dən gəlir
   storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
   messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
   appId: process.env.FIREBASE_APP_ID
 };
 
 const firebaseApp = initializeApp(firebaseConfig);
-const db = getDatabase(firebaseApp);
+
+// XƏTANIN QARŞISINI ALMAQ ÜÇÜN: getDatabase funksiyasına birbaşa URL-i ötürürük
+// Əgər Env dəyişəni oxunmazsa mühit çəkməsin deyə sığortalayırıq
+const db = getDatabase(firebaseApp, process.env.FIREBASE_DATABASE_URL);
 const messagesRef = ref(db, 'messages');
 
-// Yeni mesaj Firebase-ə düşəndə bütün istifadəçilərə anında göndər
+// Yeni mesaj gələndə ötür
 onChildAdded(messagesRef, (snapshot) => {
   const newMsg = snapshot.val();
   io.emit('receiveMessage', newMsg);
@@ -38,7 +39,6 @@ onChildAdded(messagesRef, (snapshot) => {
 io.on('connection', (socket) => {
   console.log('Yeni istifadəçi qoşuldu:', socket.id);
 
-  // İstifadəçi qoşulanda köhnə mesajları bazadan çəkib ona göndəririk
   get(messagesRef).then((snapshot) => {
     if (snapshot.exists()) {
       const allMessages = Object.values(snapshot.val());
@@ -50,26 +50,30 @@ io.on('connection', (socket) => {
   socket.on('login', async (data, callback) => {
     try {
       const { nick, pass } = data;
-      const userRef = ref(db, 'users/' + nick);
+      
+      // Nickname daxilində Firebase-i sıradan çıxaracaq boşluq və ya simvolları təmizləyirik
+      const cleanNick = nick.replace(/[.#$/\[\]]/g, "_"); 
+      
+      const userRef = ref(db, 'users/' + cleanNick);
       const snapshot = await get(userRef);
 
       if (snapshot.exists()) {
         if (snapshot.val().password !== pass) {
-          callback({ success: false, message: "Şifrə yanlışdır!" });
+          return callback({ success: false, message: "Şifrə yanlışdır!" });
         } else {
-          callback({ success: true });
+          return callback({ success: true });
         }
       } else {
         await set(userRef, { password: pass });
-        callback({ success: true });
+        return callback({ success: true });
       }
     } catch (err) {
-      console.error("Login zamanı xəta:", err);
-      callback({ success: false, message: "Sistemdə xəta baş verdi, yenidən cəhd edin." });
+      // Render logs panelində real Node.js xətasını görmək üçün mütləq buraya yazdırırıq
+      console.error("CRITICAL LOGIN ERROR:", err);
+      return callback({ success: false, message: "Sistemdə xəta baş verdi, yenidən cəhd edin." });
     }
   });
 
-  // İstifadəçi yeni mesaj yazanda Firebase-ə əlavə et
   socket.on('sendMessage', (data) => {
     push(messagesRef, data).catch(err => console.error("Mesaj yazılarkən xəta:", err));
   });
