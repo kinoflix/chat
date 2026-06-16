@@ -1,267 +1,198 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="az">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>KINOFLIX - Onlayn Çat</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-  <style>
-    body { 
-      margin: 0; 
-      font-family: 'Poppins', sans-serif; 
-      background: linear-gradient(135deg, #141414, #222222); 
-      color: white; 
-      min-height: 100vh; 
-      display: flex; 
-      flex-direction: column; 
-    }
-    
-    .chat-screen { display: none !important; flex-direction: column; height: 100%; }
-    .chat-screen.active { display: flex !important; }
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>KINOFLIX - Onlayn Çat / Server</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath fill='%231db954' d='M27.5 162.2L9 187.1h90.5l6.9-130.7-78.9 105.8zM396.3 45.7L267.7 32l135.7 147.2-7.1-133.5zM112.2 218.3l-11.2-22H9.9L234.8 458zm2-31.2h284l-81.5-88.5L256.3 33zm297.3 9.1L277.6 458l224.8-261.7h-90.9zM415.4 69L406 56.4l.9 17.3 6.1 113.4h90.3zM113.5 93.5l-4.6 85.6L244.7 32 116.1 45.7zm287.7 102.7h-290l42.4 82.9L256.3 480l144.9-283.8z'/%3E%3C/svg%3E">
+    <link href="https://fonts.googleapis.com/css?family=Varela+Round" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-    .social-chat-section { 
-      width: 100%; 
-      max-width: 800px; 
-      height: 600px; 
-      background: #111111; 
-      margin: 30px auto; 
-      border-radius: 15px; 
-      overflow: hidden; 
-      color: #333; 
-      display: flex; 
-      flex-direction: column; 
-      position: relative; 
-      box-shadow: 0 8px 24px rgba(0,0,0,0.6);
-      border: 1px solid #292929;
-    }
-    
-    #loginScreen { 
-      background: linear-gradient(135deg, #141414, #1c1c1c); 
-      color: white; 
-      justify-content: center; 
-      align-items: center; 
-      padding: 20px; 
-      text-align: center; 
-    }
-    #loginScreen h2 {
-      color: #E50914;
-      margin-bottom: 20px;
-      font-size: 32px;
-      letter-spacing: 1px;
-      font-weight: bold;
-    }
-    .nick-input { 
-      width: 280px; 
-      padding: 12px; 
-      border-radius: 25px; 
-      border: 1px solid #444; 
-      margin-bottom: 12px; 
-      text-align: center; 
-      background: #262626;
-      color: white;
-      outline: none;
-      font-size: 16px;
-    }
-    .nick-input:focus { border-color: #E50914; }
-    
-    .login-btn { 
-      background: #E50914; 
-      color: white; 
-      border: none; 
-      padding: 12px 50px; 
-      border-radius: 25px; 
-      cursor: pointer; 
-      font-weight: bold;
-      font-size: 16px;
-      transition: background 0.3s;
-    }
-    .login-btn:hover { background: #b80710; }
-    
-    .whatsapp-header { 
-      background: #181818; 
-      color: white; 
-      padding: 15px; 
-      display: flex; 
-      justify-content: space-between; 
-      align-items: center; 
-      border-bottom: 2px solid #E50914;
-    }
-    
-    .chat-messages-area { 
-      flex: 1; 
-      padding: 20px; 
-      overflow-y: auto; 
-      background: #141414; 
-      display: flex; 
-      flex-direction: column; 
-      gap: 10px; 
-    }
-    .chat-messages-area::-webkit-scrollbar { width: 6px; }
-    .chat-messages-area::-webkit-scrollbar-thumb { background: #E50914; border-radius: 10px; }
+    <style>
+        :root {
+            --bg: #08101a; --surface: #0f1720; --muted: #94a3b8; --accent: #1db954; 
+            --text: #e6eef6; --glass: rgba(255,255,255,0.03); --radius: 12px; 
+            --card-sh: 0 8px 28px rgba(2,6,23,0.6); --header-bg: rgba(8, 16, 26, 0.8);
+            --hover-red: #d94f5c;
+        }
+        [data-theme="light"] {
+            --bg: #f6f8fb; --surface: #ffffff; --muted: #475569; --accent: #0b74ff; 
+            --text: #071026; --glass: rgba(0,0,0,0.04); --header-bg: rgba(246, 248, 251, 0.8);
+        }
+        * { box-sizing: border-box; padding: 0; margin: 0; }
+        body { background: var(--bg); color: var(--text); font-family: "Varela Round", sans-serif; transition: background 0.3s; line-height: 1.6; }
 
-    .message-bubble { 
-      max-width: 70%; 
-      padding: 10px 14px; 
-      border-radius: 12px; 
-      font-size: 15px; 
-      word-wrap: break-word;
-      color: white;
-      line-height: 1.4;
-    }
-    .message-bubble b { display: block; font-size: 0.85em; margin-bottom: 30px; opacity: 0.8; margin-bottom: 3px;}
-    
-    .me { background: #E50914; align-self: flex-end; border-bottom-right-radius: 2px; color: white; }
-    .other { background: #262626; align-self: flex-start; border-bottom-left-radius: 2px; color: white; border: 1px solid #333; }
-    
-    .chat-input-bar { 
-      background: #181818; 
-      padding: 12px; 
-      display: flex; 
-      gap: 10px; 
-      align-items: center; 
-      border-top: 1px solid #222;
-    }
-    .chat-input-bar input {
-      flex: 1;
-      padding: 12px 20px;
-      background: #262626;
-      border: 1px solid #444;
-      border-radius: 25px;
-      color: white;
-      outline: none;
-      font-size: 15px;
-    }
-    .chat-input-bar input:focus { border-color: #E50914; }
-    
-    .send-btn {
-      padding: 11px 24px;
-      background: #E50914;
-      color: white;
-      border: none;
-      border-radius: 25px;
-      cursor: pointer;
-      font-weight: bold;
-      transition: background 0.3s;
-    }
-    .send-btn:hover { background: #b80710; }
-  </style>
+        header {
+            position: fixed; top: 0; width: 100%; height: 72px; 
+            background: var(--header-bg); backdrop-filter: blur(10px);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 18px; z-index: 1000; border-bottom: 1px solid var(--glass);
+        }
+        .logo img { height: 30px; width: auto; transition: 0.3s; }
+        .icon-btn {
+            background: var(--glass); border: none; color: var(--text);
+            width: 40px; height: 40px; border-radius: 50%; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
+        }
+        #themeToggle:hover {
+            transform: scale(1.1) rotate(15deg); background: var(--accent) !important; color: #fff !important;
+            box-shadow: 0 0 10px var(--accent), 0 0 20px var(--accent);
+        }
+
+        .main-content { max-width: 800px; margin: 120px auto 30px auto; padding: 0 20px; }
+
+        /* KINOFLIX SMART CHAT DESIGN SYSTEM */
+        .social-chat-section { width: 100%; height: 550px; background: var(--surface); border: 1px solid var(--glass); border-radius: var(--radius); overflow: hidden; display: flex; flex-direction: column; position: relative; box-shadow: var(--card-sh); }
+        .chat-screen { display: none !important; flex-direction: column; height: 100%; }
+        .chat-screen.active { display: flex !important; }
+
+        /* LOGIN */
+        #loginScreen { justify-content: center; align-items: center; padding: 40px; text-align: center; gap: 15px; }
+        #loginScreen h2 { color: var(--text); font-size: 24px; font-weight: bold; letter-spacing: 0.5px; margin-bottom: 10px; }
+        .nick-input { width: 100%; max-width: 320px; padding: 14px 18px; border-radius: 8px; border: 1px solid var(--glass); background: var(--bg); color: var(--text); outline: none; font-size: 15px; font-family: inherit; transition: 0.3s; }
+        .nick-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 20%, transparent); }
+        .login-btn { width: 100%; max-width: 320px; background: var(--accent); color: white; border: none; padding: 14px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 15px; font-family: inherit; transition: 0.2s; }
+        .login-btn:hover { background: var(--hover-red); }
+
+        /* CHAT WINDOW */
+        .whatsapp-header { background: var(--surface); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--glass); }
+        .chat-messages-area { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; background: rgba(0,0,0,0.05); }
+        .chat-messages-area::-webkit-scrollbar { width: 4px; }
+        .chat-messages-area::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 4px; }
+
+        .message-bubble { max-width: 75%; padding: 12px 16px; border-radius: 14px; font-size: 14.5px; word-wrap: break-word; line-height: 1.5; animation: slideUp 0.2s ease-out forwards; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        .message-bubble b { display: block; font-size: 11px; opacity: 0.6; margin-bottom: 4px; letter-spacing: 0.3px; }
+        
+        .me { background: var(--accent); color: white; align-self: flex-end; border-bottom-right-radius: 0; box-shadow: 0 3px 10px color-mix(in srgb, var(--accent) 30%, transparent); }
+        .other { background: var(--surface); color: var(--text); align-self: flex-start; border-bottom-left-radius: 0; border: 1px solid var(--glass); }
+
+        .chat-input-bar { background: var(--surface); padding: 14px 20px; display: flex; gap: 12px; border-top: 1px solid var(--glass); align-items: center; }
+        .chat-input-bar input { flex: 1; padding: 12px 16px; background: var(--bg); border: 1px solid var(--glass); color: var(--text); border-radius: 8px; outline: none; font-size: 14px; font-family: inherit; transition: 0.3s; }
+        .chat-input-bar input:focus { border-color: var(--accent); }
+        .send-btn { background: var(--accent); color: white; border: none; padding: 0 22px; height: 43px; border-radius: 8px; cursor: pointer; font-weight: bold; font-family: inherit; transition: 0.2s; }
+        .send-btn:hover { background: var(--hover-red); }
+    </style>
 </head>
+<body data-theme="dark">
 
-<body>
-  <main>
+<header>
+    <a href="#" class="logo">
+        <img id="siteLogo" src="../FILES/IMG/logos/white.png" alt="KINOFLIX">
+    </a>
+    <button id="themeToggle" class="icon-btn">☀️</button>
+</header>
+
+<main class="main-content">
     <div class="social-chat-section">
-      
-      <!-- GİRİŞ EKRANI -->
-      <div class="chat-screen active" id="loginScreen">
-        <h2>KINOFLIX ÇAT</h2>
-        <input type="text" id="nicknameInput" class="nick-input" placeholder="Ləqəbiniz">
-        <input type="password" id="passwordInput" class="nick-input" placeholder="Şifrəniz">
-        <button class="login-btn" id="loginBtn" onclick="loginOrRegister()">Daxil Ol</button>
-      </div>
-
-      <!-- CANLI ÇAT EKRANI -->
-      <div class="chat-screen" id="mainChatScreen">
-        <div class="whatsapp-header">
-          <div id="myDisplayNick" style="font-weight: bold; letter-spacing: 0.5px;">🔴 İstifadəçi</div>
-          <button onclick="logoutChat()" style="background:#E50914; color:white; border:none; border-radius:20px; padding:6px 16px; cursor:pointer; font-weight:bold; transition: 0.3s;">Çıxış</button>
+        <!-- GİRİŞ EKRANI -->
+        <div class="chat-screen active" id="loginScreen">
+            <h2>Söhbətə Qoşul</h2>
+            <input type="text" id="nicknameInput" class="nick-input" placeholder="Ləqəbiniz">
+            <input type="password" id="passwordInput" class="nick-input" placeholder="Şifrəniz">
+            <button class="login-btn" id="loginBtn" onclick="loginOrRegister()">Daxil Ol</button>
         </div>
-        <div class="chat-messages-area" id="chatMessagesArea"></div>
-        <div class="chat-input-bar">
-          <input type="text" id="messageInputField" placeholder="Mesaj yazın..." autocomplete="off" onkeypress="handleKeyPress(event)">
-          <button class="send-btn" onclick="triggerMessageSend()">Göndər</button>
-        </div>
-      </div>
 
+        <!-- CANLI ÇAT EKRANI -->
+        <div class="chat-screen" id="mainChatScreen">
+            <div class="whatsapp-header">
+                <div id="myDisplayNick" style="font-weight: bold; letter-spacing: 0.5px;">🔴 İstifadəçi</div>
+                <button onclick="logoutChat()" style="background:var(--hover-red); color:white; border:none; border-radius:6px; padding:6px 16px; cursor:pointer; font-weight:bold; transition: 0.2s;">Çıxış</button>
+            </div>
+            <div class="chat-messages-area" id="chatMessagesArea"></div>
+            <div class="chat-input-bar">
+                <input type="text" id="messageInputField" placeholder="Mesaj yazın..." autocomplete="off" onkeypress="handleKeyPress(event)">
+                <button class="send-btn" onclick="triggerMessageSend()">Göndər</button>
+            </div>
+        </div>
     </div>
-  </main>
+</main>
 
-  <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
-  <script>
-    // === BAĞLANTI LİNKİ ===
-    // Əgər index.html və server fərqli yerlərdədirsə, öz aktiv Render linkini bura yaz. Eynidirsə boş burax ""
-    const RENDER_URL = "https://kinoflixchat.onrender.com"; 
-    
-    const socket = RENDER_URL 
-      ? io(RENDER_URL, { transports: ['websocket', 'polling'] }) 
-      : io({ transports: ['websocket', 'polling'] });
-
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    const socket = io({ transports: ['websocket', 'polling'] });
     window.currentUserNick = "";
 
     window.loginOrRegister = function() {
-      const nick = document.getElementById('nicknameInput').value.trim();
-      const pass = document.getElementById('passwordInput').value.trim();
-      const btn = document.getElementById('loginBtn');
+        const nick = document.getElementById('nicknameInput').value.trim();
+        const pass = document.getElementById('passwordInput').value.trim();
+        const btn = document.getElementById('loginBtn');
 
-      if(!nick || !pass) return alert("Lütfən ləqəb və şifrəni yazın.");
-      if(!socket.connected) return alert("Serverə qoşulma gözlənilir, bir az sonra yenidən yoxlayın.");
+        if(!nick || !pass) return alert("Lütfən ləqəb və şifrəni yazın.");
+        btn.disabled = true;
+        btn.innerText = "Yoxlanılır...";
 
-      btn.disabled = true;
-      btn.innerText = "Yoxlanılır...";
-
-      socket.emit('login', { nick, pass }, (response) => {
-        if (response.success) {
-          window.currentUserNick = nick;
-          document.getElementById('myDisplayNick').innerText = "🟢 " + nick;
-          
-          document.getElementById('loginScreen').classList.remove('active');
-          document.getElementById('mainChatScreen').classList.add('active');
-        } else {
-          alert(response.message);
-          btn.disabled = false;
-          btn.innerText = "Daxil Ol";
-        }
-      });
+        socket.emit('login', { nick, pass }, (response) => {
+            if (response.success) {
+                window.currentUserNick = nick;
+                document.getElementById('myDisplayNick').innerHTML = `<span style='color: #1db954;'>●</span> ${nick}`;
+                document.getElementById('loginScreen').classList.remove('active');
+                document.getElementById('mainChatScreen').classList.add('active');
+            } else {
+                alert(response.message);
+                btn.disabled = false;
+                btn.innerText = "Daxil Ol";
+            }
+        });
     };
 
     window.triggerMessageSend = () => {
-      const input = document.getElementById('messageInputField');
-      if(!input.value.trim() || !window.currentUserNick) return;
-      
-      // Sənin nümunəndəki kimi dəqiq ötürmə formatı: sender və text
-      socket.emit('sendMessage', { sender: window.currentUserNick, text: input.value.trim() });
-      input.value = "";
+        const input = document.getElementById('messageInputField');
+        if(!input.value.trim() || !window.currentUserNick) return;
+        socket.emit('sendMessage', { sender: window.currentUserNick, text: input.value.trim() });
+        input.value = "";
     };
 
-    window.handleKeyPress = (e) => {
-      if (e.key === 'Enter') triggerMessageSend();
-    };
+    window.handleKeyPress = (e) => { if (e.key === 'Enter') triggerMessageSend(); };
 
     function appendMessage(msg) {
-      const senderNick = msg.sender || msg.nick || "Anonim";
-      const messageText = msg.text || msg.message || "";
+        const senderNick = msg.sender || msg.nick || "Anonim";
+        const messageText = msg.text || msg.message || "";
+        if (!messageText.trim()) return;
 
-      if (!messageText.trim()) return;
-
-      const div = document.createElement('div');
-      // Giriş etmiş istifadəçiyə görə dinamik sinif təyini (me: Qırmızı, other: Tünd Boz)
-      div.className = 'message-bubble ' + (senderNick === window.currentUserNick ? 'me' : 'other');
-      div.innerHTML = `<b>${senderNick}</b> ${escapeHTML(messageText)}`;
-      
-      const area = document.getElementById('chatMessagesArea');
-      area.appendChild(div);
-      area.scrollTop = area.scrollHeight; // Həmişə avtomatik ən aşağıya düşür
+        const div = document.createElement('div');
+        div.className = 'message-bubble ' + (senderNick === window.currentUserNick ? 'me' : 'other');
+        div.innerHTML = `<b>${senderNick}</b> ${escapeHTML(messageText)}`;
+        
+        const area = document.getElementById('chatMessagesArea');
+        area.appendChild(div);
+        area.scrollTop = area.scrollHeight;
     }
 
-    // Köhnə mesaj arxivi gələndə pəncərəni təmizləyib hamısını basır
     socket.on('loadAllMessages', (messages) => {
-      document.getElementById('chatMessagesArea').innerHTML = ''; 
-      messages.forEach(msg => appendMessage(msg));
+        document.getElementById('chatMessagesArea').innerHTML = ''; 
+        messages.forEach(msg => appendMessage(msg));
     });
 
-    // Yeni canlı mesaj gələndə anında ekrana əlavə edir
-    socket.on('receiveMessage', (msg) => {
-      appendMessage(msg);
-    });
+    socket.on('receiveMessage', (msg) => { appendMessage(msg); });
+    window.logoutChat = function() { socket.disconnect(); location.reload(); };
+    function escapeHTML(str) { return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
 
-    // Tam sığortalı Çıxış (Logout) sistemi
-    window.logoutChat = function() {
-      socket.disconnect();
-      location.reload();
-    };
+    // THEME ENGINE
+    const themeToggle = document.getElementById('themeToggle');
+    const siteLogo = document.getElementById('siteLogo');
+    const body = document.body;
 
-    function escapeHTML(str) {
-      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    function updateUI(theme) {
+        const isDark = theme === 'dark';
+        themeToggle.innerHTML = isDark ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
+        const logoColor = isDark ? 'white' : 'black';
+        siteLogo.src = `../FILES/IMG/logos/${logoColor}.png`;
+        siteLogo.onerror = function() { this.src = `FILES/IMG/logos/${logoColor}.png`; this.onerror = null; };
     }
-  </script>
+
+    themeToggle.addEventListener('click', () => {
+        const newTheme = body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        body.setAttribute('data-theme', newTheme);
+        localStorage.setItem('flix-theme', newTheme);
+        updateUI(newTheme);
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const savedTheme = localStorage.getItem('flix-theme') || 'dark';
+        body.setAttribute('data-theme', savedTheme);
+        updateUI(savedTheme);
+    });
+</script>
 </body>
 </html>
